@@ -19,6 +19,10 @@ class RouterClient
     response get "/applications/#{application_id}"
   end
 
+  def update_application(application_id, params)
+    response put "/applications/#{application_id}", params
+  end
+
   private
   def router_url(uri)
     URI.parse(@base_url + uri)
@@ -26,6 +30,13 @@ class RouterClient
 
   def post(uri, params)
     Net::HTTP.post_form(router_url(uri), params)
+  end
+
+  def put(uri_str, params)
+    uri = router_url(uri_str)
+    put_request = Net::HTTP::Put.new(uri_str)
+    put_request.form_data = params
+    Net::HTTP.new(uri.host, uri.port).start { |http| http.request(put_request) }
   end
 
   def get(uri)
@@ -53,6 +64,7 @@ class RouterClient
         json
     end
   end
+
 end
 
 
