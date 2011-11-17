@@ -40,13 +40,15 @@ class RouterTest < Test::Unit::TestCase
         with(:body => {"backend_url"=>"http://sausages.alphagov.co.uk"}).
         to_return(:status => 200, :body => '{"application_id":"test-application","backend_url":"http://sausages.alphagov.co.uk"}')
 
-    application = @router_client.update_application "test-application", { "backend_url" => "http://sausages.alphagov.co.uk"}
+    application = @router_client.update_application "test-application", {"backend_url" => "http://sausages.alphagov.co.uk"}
     assert_equal("test-application", application.application_id)
     assert_equal("http://sausages.alphagov.co.uk", application.backend_url)
-  end
 
-  def test_cannot_update_application_name
-    # todo
-  end
+    # Delete application
+    stub_request(:delete, "http://router.gov.uk/applications/test-application").
+        with(:headers => {'Accept'=>'*/*', 'User-Agent'=>'Ruby'}).
+        to_return(:status => 200, :body => "", :headers => {})
 
+    @router_client.delete_application "test-application"
+  end
 end

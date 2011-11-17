@@ -23,6 +23,10 @@ class RouterClient
     response put "/applications/#{application_id}", params
   end
 
+  def delete_application(application_id)
+    delete "/applications/#{application_id}"
+  end
+
   private
   def router_url(uri)
     URI.parse(@base_url + uri)
@@ -39,8 +43,14 @@ class RouterClient
     Net::HTTP.new(uri.host, uri.port).start { |http| http.request(put_request) }
   end
 
-  def get(uri)
-    Net::HTTP.get(router_url uri)
+  def delete(uri_str)
+    uri = router_url(uri_str)
+    delete_request = Net::HTTP::Delete.new(uri_str)
+    Net::HTTP.new(uri.host, uri.port).start { |http| http.request(delete_request) }
+  end
+
+  def get(uri_str)
+    Net::HTTP.get(router_url uri_str)
   end
 
   def response(response)
@@ -54,17 +64,16 @@ class RouterClient
     end
   end
 
-  def to_ostruct(json)
-    case json
+  def to_ostruct(obj)
+    case obj
       when Hash
         values = {}
-        json.each { |key, value| values[key] = to_ostruct(value) }
+        obj.each { |key, value| values[key] = to_ostruct(value) }
         OpenStruct.new(values)
       else
-        json
+        obj
     end
   end
-
 end
 
 
